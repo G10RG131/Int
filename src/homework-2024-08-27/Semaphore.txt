@@ -1,0 +1,24 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Semaphore;
+
+public class BlockingQueueWithoutCapacity<T> {
+
+    Queue<T> queue = new LinkedList<>();
+    private final Semaphore itemSemaphore = new Semaphore(0);
+    private final Object mutex = new Object();
+    
+    public void put(T item) throws InterruptedException {
+        synchronized (mutex) {
+            queue.add(item);
+        }
+        itemSemaphore.release();
+    }
+
+    public T get() throws InterruptedException {
+        itemSemaphore.acquire();
+        synchronized (mutex) {
+            return queue.poll();
+        }
+    }
+}
